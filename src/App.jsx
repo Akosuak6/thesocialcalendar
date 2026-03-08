@@ -570,13 +570,52 @@ function saveTrips(trips){
   try{localStorage.setItem("tsc-trips",JSON.stringify(trips));}catch{}
 }
 
-export default function TSC(){
-  // ── Auth state (always first) ──
-  const [unlocked,setUnlocked]=useState(()=>{try{return localStorage.getItem("tsc-unlocked")==="1";}catch{return false;}});
+/* ── LOCK SCREEN COMPONENT ── */
+function LockScreen({onUnlock}){
   const [pwInput,setPwInput]=useState("");
   const [pwError,setPwError]=useState(false);
 
-  // ── App state (all hooks must be declared before any return) ──
+  function tryUnlock(){
+    if(pwInput===APP_PASSWORD){try{localStorage.setItem("tsc-unlocked","1");}catch{}onUnlock();}
+    else{setPwError(true);setPwInput("");setTimeout(()=>setPwError(false),1800);}
+  }
+
+  return(
+    <>
+      <style>{FONTS}{CSS}</style>
+      <div className="lock-screen">
+        <div className="lock-glow"/>
+        <div className="lock-logo">TSC</div>
+        <div className="lock-sub">The Social Calendar</div>
+        <div className="lock-rule"/>
+        <div className="lock-form">
+          <input
+            className="lock-input"
+            type="password"
+            placeholder="Enter password"
+            value={pwInput}
+            autoFocus
+            onChange={e=>{setPwInput(e.target.value);setPwError(false);}}
+            onKeyDown={e=>e.key==="Enter"&&tryUnlock()}
+            style={{borderColor:pwError?"rgba(192,57,43,0.6)":undefined}}
+          />
+          <div className="lock-error">{pwError?"Incorrect password — try again":""}</div>
+          <button className="lock-btn" onClick={tryUnlock}>Enter</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default function TSC(){
+  const [unlocked,setUnlocked]=useState(()=>{try{return localStorage.getItem("tsc-unlocked")==="1";}catch{return false;}});
+
+  if(!unlocked) return <LockScreen onUnlock={()=>setUnlocked(true)}/>;
+
+  return <App/>;
+}
+
+function App(){
   const [page,setPage]=useState("dashboard");
   const [activeTripId,setActiveTripId]=useState(null);
   const [mainTab,setMainTab]=useState("bookings");
@@ -612,38 +651,6 @@ export default function TSC(){
 
   // Auto-save trips to localStorage on every change
   useEffect(()=>{saveTrips(trips);},[trips]);
-
-  // ── Lock screen (early return AFTER all hooks) ──
-  function tryUnlock(){
-    if(pwInput===APP_PASSWORD){try{localStorage.setItem("tsc-unlocked","1");}catch{}setUnlocked(true);}
-    else{setPwError(true);setPwInput("");setTimeout(()=>setPwError(false),1800);}
-  }
-
-  if(!unlocked) return(
-    <>
-      <style>{FONTS}{CSS}</style>
-      <div className="lock-screen">
-        <div className="lock-glow"/>
-        <div className="lock-logo">TSC</div>
-        <div className="lock-sub">The Social Calendar</div>
-        <div className="lock-rule"/>
-        <div className="lock-form">
-          <input
-            className="lock-input"
-            type="password"
-            placeholder="Enter password"
-            value={pwInput}
-            autoFocus
-            onChange={e=>{setPwInput(e.target.value);setPwError(false);}}
-            onKeyDown={e=>e.key==="Enter"&&tryUnlock()}
-            style={{borderColor:pwError?"rgba(192,57,43,0.6)":undefined}}
-          />
-          <div className="lock-error">{pwError?"Incorrect password — try again":""}</div>
-          <button className="lock-btn" onClick={tryUnlock}>Enter</button>
-        </div>
-      </div>
-    </>
-  );
 
   const trip=trips.find(t=>t.id===activeTripId);
   const openTrip=(id)=>{setActiveTripId(id);setPage("trip");setMainTab("bookings");setSidebarOpen(true)};
