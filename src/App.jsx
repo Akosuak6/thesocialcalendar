@@ -450,7 +450,22 @@ select.fi option{background:var(--surface)}
   .bc-label{font-size:0.44rem}
   .photos-grid{grid-template-columns:repeat(3,1fr)}
 }
+
+/* ── LOCK SCREEN ── */
+.lock-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:2rem}
+.lock-logo{font-family:var(--sc);font-size:2rem;color:var(--white);letter-spacing:0.18em;margin-bottom:0.4rem}
+.lock-sub{font-family:var(--sans);font-size:0.56rem;color:var(--text3);letter-spacing:0.28em;text-transform:uppercase;margin-bottom:3rem;font-weight:300}
+.lock-rule{width:32px;height:1px;background:var(--gold);opacity:0.4;margin-bottom:3rem}
+.lock-form{display:flex;flex-direction:column;align-items:center;gap:1rem;width:100%;max-width:280px}
+.lock-input{width:100%;background:var(--card);border:1px solid var(--border2);color:var(--white);font-family:var(--sans);font-size:1rem;padding:0.9rem 1.1rem;outline:none;text-align:center;letter-spacing:0.18em;transition:border-color 0.2s;-webkit-appearance:none;border-radius:0}
+.lock-input:focus{border-color:rgba(184,149,106,0.5)}
+.lock-input::placeholder{color:var(--text3);letter-spacing:0.08em;font-size:0.78rem}
+.lock-btn{width:100%;background:var(--white);color:var(--bg);border:none;font-family:var(--sans);font-size:0.62rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;padding:1rem;cursor:pointer;transition:background 0.2s;min-height:48px;-webkit-tap-highlight-color:transparent}
+.lock-btn:hover,.lock-btn:active{background:var(--text)}
+.lock-error{font-family:var(--sans);font-size:0.6rem;color:var(--red);letter-spacing:0.1em;font-weight:300;height:1rem}
+.lock-glow{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(184,149,106,0.04) 0%,transparent 70%);pointer-events:none}
 `;
+
 
 /* ── CONSTANTS ── */
 const BICONS={flight:"✈️",hotel:"🏨",airbnb:"🏡",train:"🚆",car:"🚗",other:"📋"};
@@ -540,6 +555,9 @@ const DEMO={
 };
 
 /* ══════════════════════════════════════════════════════════════════════ */
+/* ── PASSWORD — change this to whatever you want ── */
+const APP_PASSWORD = "secretproject";
+
 /* ── LOCALSTORAGE HELPERS ── */
 function loadTrips(){
   try{
@@ -553,6 +571,12 @@ function saveTrips(trips){
 }
 
 export default function TSC(){
+  // ── Auth state (always first) ──
+  const [unlocked,setUnlocked]=useState(()=>{try{return localStorage.getItem("tsc-unlocked")==="1";}catch{return false;}});
+  const [pwInput,setPwInput]=useState("");
+  const [pwError,setPwError]=useState(false);
+
+  // ── App state (all hooks must be declared before any return) ──
   const [page,setPage]=useState("dashboard");
   const [activeTripId,setActiveTripId]=useState(null);
   const [mainTab,setMainTab]=useState("bookings");
@@ -561,14 +585,14 @@ export default function TSC(){
   const [modals,setModals]=useState({});
   const [bookingText,setBookingText]=useState("");
   const [isParsing,setIsParsing]=useState(false);
-  const [ticketFile,setTicketFile]=useState(null); // {src, parsed}
+  const [ticketFile,setTicketFile]=useState(null);
   const [isParsingTicket,setIsParsingTicket]=useState(false);
   const ticketDropRef=useRef();
   const [newTrip,setNewTrip]=useState({destination:"",country:"",startDate:"",endDate:"",budget:""});
   const [newPlace,setNewPlace]=useState({name:"",category:"restaurant",note:"",rating:80});
   const [newExpense,setNewExpense]=useState({name:"",amount:"",category:"food",paidBy:"",splitWith:[],splitType:"equal",customSplits:{}});
   const [newAgenda,setNewAgenda]=useState({time:"09:00",text:"",icon:"📍",transport:"🚶 Walk",cost:"",dayIndex:0});
-  const [editAgenda,setEditAgenda]=useState(null); // {item, dayIndex}
+  const [editAgenda,setEditAgenda]=useState(null);
   const [expandedTickets,setExpandedTickets]=useState({});
   const [walletOpen,setWalletOpen]=useState({});
   const [suggestions,setSuggestions]=useState([]);
@@ -581,13 +605,45 @@ export default function TSC(){
   const [newTraveler,setNewTraveler]=useState("");
   const [receipt,setReceipt]=useState(null);
   const [receiptLoading,setReceiptLoading]=useState(false);
-  const [tagModal,setTagModal]=useState(null); // {photoId}
+  const [tagModal,setTagModal]=useState(null);
   const photoRef=useRef();
   const receiptRef=useRef();
   const ticketImgRefs=useRef({});
 
   // Auto-save trips to localStorage on every change
   useEffect(()=>{saveTrips(trips);},[trips]);
+
+  // ── Lock screen (early return AFTER all hooks) ──
+  function tryUnlock(){
+    if(pwInput===APP_PASSWORD){try{localStorage.setItem("tsc-unlocked","1");}catch{}setUnlocked(true);}
+    else{setPwError(true);setPwInput("");setTimeout(()=>setPwError(false),1800);}
+  }
+
+  if(!unlocked) return(
+    <>
+      <style>{FONTS}{CSS}</style>
+      <div className="lock-screen">
+        <div className="lock-glow"/>
+        <div className="lock-logo">TSC</div>
+        <div className="lock-sub">The Social Calendar</div>
+        <div className="lock-rule"/>
+        <div className="lock-form">
+          <input
+            className="lock-input"
+            type="password"
+            placeholder="Enter password"
+            value={pwInput}
+            autoFocus
+            onChange={e=>{setPwInput(e.target.value);setPwError(false);}}
+            onKeyDown={e=>e.key==="Enter"&&tryUnlock()}
+            style={{borderColor:pwError?"rgba(192,57,43,0.6)":undefined}}
+          />
+          <div className="lock-error">{pwError?"Incorrect password — try again":""}</div>
+          <button className="lock-btn" onClick={tryUnlock}>Enter</button>
+        </div>
+      </div>
+    </>
+  );
 
   const trip=trips.find(t=>t.id===activeTripId);
   const openTrip=(id)=>{setActiveTripId(id);setPage("trip");setMainTab("bookings");setSidebarOpen(true)};
