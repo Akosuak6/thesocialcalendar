@@ -317,6 +317,23 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 .notes-area:focus{border-color:rgba(184,149,106,0.35)}
 .notes-area::placeholder{color:var(--text3)}
 
+/* ── TICKET UPLOAD ── */
+.ticket-drop-zone{border:1px dashed var(--border2);padding:1.5rem 1rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:1rem;position:relative;-webkit-tap-highlight-color:transparent}
+.ticket-drop-zone:hover,.ticket-drop-zone.dov,.ticket-drop-zone:active{border-color:rgba(184,149,106,0.5);background:var(--gold-glow)}
+.ticket-drop-icon{font-size:1.5rem;opacity:0.2;margin-bottom:0.4rem}
+.ticket-drop-text{font-family:var(--sans);font-size:0.6rem;color:var(--text3);letter-spacing:0.08em;line-height:1.9;font-weight:300}
+.ticket-drop-or{font-family:var(--sans);font-size:0.5rem;color:var(--text3);letter-spacing:0.2em;text-align:center;margin:0.75rem 0;text-transform:uppercase;display:flex;align-items:center;gap:0.5rem}
+.ticket-drop-or::before,.ticket-drop-or::after{content:'';flex:1;height:1px;background:var(--border)}
+.ticket-parsed{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--gold);padding:1rem;margin-bottom:1rem}
+.tp-row{display:flex;gap:0.75rem;margin-bottom:0.75rem}
+.tp-preview{width:72px;height:72px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+.tp-preview-pdf{width:72px;height:72px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.tp-fields{flex:1;display:flex;flex-direction:column;gap:0.3rem;min-width:0}
+.tp-field{display:flex;gap:0.5rem;align-items:baseline;flex-wrap:wrap}
+.tp-label{font-family:var(--sans);font-size:0.48rem;letter-spacing:0.16em;color:var(--text3);text-transform:uppercase;font-weight:400;flex-shrink:0;min-width:52px}
+.tp-val{font-family:var(--serif);font-size:0.88rem;color:var(--white);font-weight:400;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem 0.75rem}
+
 /* ── MODALS ── */
 .overlay{position:fixed;inset:0;background:rgba(5,10,18,0.9);backdrop-filter:blur(12px);z-index:400;display:flex;align-items:flex-end;justify-content:center;padding:0}
 .modal{background:var(--surface);border:1px solid var(--border2);border-bottom:none;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;animation:slideUp 0.25s;border-radius:0;padding-bottom:env(safe-area-inset-bottom)}
@@ -458,10 +475,20 @@ const AI=async(prompt,maxTokens=1400)=>{
 };
 
 async function aiParseBooking(text){
-  return AI(`Parse this travel confirmation. Return ONLY valid JSON:\n{"type":"flight|hotel|airbnb|train|car|other","title":"short title","details":"one line","date":"YYYY-MM-DD","destination":"city"}\nText:"""${text}"""`);
+  return AI(`Parse this travel confirmation. Return ONLY valid JSON with no extra text:\n{"type":"flight|hotel|airbnb|train|car|other","title":"short title","details":"one line summary","date":"YYYY-MM-DD","destination":"city"}\nText:"""${text}"""`);
+}
+async function aiParseTicketImage(base64,mediaType){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mediaType,data:base64}},{type:"text",text:`Extract all travel ticket information from this image or document. Return ONLY valid JSON:\n{"type":"flight|train|hotel|other","title":"route or property name e.g. JFK → CDG or Hotel du Marais","passenger":"full name if visible","date":"YYYY-MM-DD","flightNumber":"e.g. AF007 or train number","departure":"city or station + time e.g. New York JFK 22:30","arrival":"city or station + time e.g. Paris CDG 11:45","seat":"seat or carriage number","class":"e.g. Economy, Business, First","cost":"numeric amount with currency symbol if visible","confirmation":"booking ref or confirmation code","details":"one-line summary of all key info","destination":"destination city"}`}]}]})});
+  const d=await r.json();
+  return JSON.parse(d.content?.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim()||"{}");
 }
 async function aiSuggestActivities(dest,items,dayLabel){
-  return AI(`Travel expert. ${dest}, suggest 4 geo-optimized activities for ${dayLabel}. Existing: ${items.map(i=>i.text).join(", ")||"none"}. Return ONLY JSON array:\n[{"text":"name + tip","time":"HH:MM","icon":"emoji","transport":"emoji mode","cost":25,"reason":"why"}]`,900);
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:`You are a travel expert. For ${dest}, suggest 4 geo-optimized activities for ${dayLabel}. Already planned: ${items.map(i=>i.text).join(", ")||"nothing yet"}. Return ONLY a valid JSON array, no other text:\n[{"text":"activity name and short tip","time":"HH:MM","icon":"single emoji","transport":"emoji + mode","cost":25,"reason":"one sentence why"}]`}]})});
+  const d=await r.json();
+  const raw=d.content?.map(b=>b.text||"").join("")||"[]";
+  const cleaned=raw.replace(/```json|```/g,"").trim();
+  const parsed=JSON.parse(cleaned);
+  return Array.isArray(parsed)?parsed:(parsed.activities||parsed.suggestions||[]);
 }
 async function aiParseReceipt(base64){
   const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:base64}},{type:"text",text:"Parse this receipt. Return ONLY JSON:\n{\"items\":[{\"name\":\"item\",\"amount\":0}],\"subtotal\":0,\"tax\":0,\"tip\":0,\"total\":0}"}]}]})});
@@ -532,6 +559,9 @@ export default function TSC(){
   const [modals,setModals]=useState({});
   const [bookingText,setBookingText]=useState("");
   const [isParsing,setIsParsing]=useState(false);
+  const [ticketFile,setTicketFile]=useState(null); // {src, parsed}
+  const [isParsingTicket,setIsParsingTicket]=useState(false);
+  const ticketDropRef=useRef();
   const [newTrip,setNewTrip]=useState({destination:"",country:"",startDate:"",endDate:"",budget:""});
   const [newPlace,setNewPlace]=useState({name:"",category:"restaurant",note:"",rating:80});
   const [newExpense,setNewExpense]=useState({name:"",amount:"",category:"food",paidBy:"",splitWith:[],splitType:"equal",customSplits:{}});
@@ -572,6 +602,37 @@ export default function TSC(){
     try{const p=await aiParseBooking(bookingText);ut(t=>({...t,bookings:[...t.bookings,{id:uid(),type:p.type||"other",title:p.title||"Reservation",details:p.details||bookingText.substring(0,120),date:p.date||""}]}));}
     catch{ut(t=>({...t,bookings:[...t.bookings,{id:uid(),type:"other",title:"Reservation",details:bookingText.substring(0,120),date:""}]}))}
     setIsParsing(false);setBookingText("");cm("booking");
+  }
+
+  async function handleTicketFile(file){
+    if(!file)return;
+    const isImg=file.type.startsWith("image/");
+    const isPdf=file.type==="application/pdf";
+    if(!isImg&&!isPdf)return;
+    setIsParsingTicket(true);
+    setTicketFile(null);
+    const reader=new FileReader();
+    reader.onload=async(ev)=>{
+      const b64=ev.target.result.split(",")[1];
+      const mediaType=isImg?file.type:"image/jpeg";
+      const preview=isImg?ev.target.result:null;
+      try{
+        const p=await aiParseTicketImage(b64,mediaType);
+        setTicketFile({preview,parsed:p,fileName:file.name});
+      }catch{
+        setTicketFile({preview,parsed:{title:file.name,type:"other",details:"Could not parse ticket"},fileName:file.name});
+      }
+      setIsParsingTicket(false);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveTicketBooking(){
+    if(!ticketFile?.parsed)return;
+    const p=ticketFile.parsed;
+    const details=[p.passenger,p.departure&&p.arrival?`${p.departure} → ${p.arrival}`:null,p.flightNumber,p.seat?`Seat ${p.seat}`:null,p.class,p.confirmation?`Ref: ${p.confirmation}`:null,p.cost].filter(Boolean).join(" · ");
+    ut(t=>({...t,bookings:[...t.bookings,{id:uid(),type:p.type||"other",title:p.title||"Booking",details:details||p.details||"",date:p.date||"",passenger:p.passenger||"",seat:p.seat||"",cost:p.cost||"",confirmation:p.confirmation||""}]}));
+    setTicketFile(null);cm("booking");
   }
 
   function addPlace(){
@@ -890,6 +951,14 @@ export default function TSC(){
                             <div className="bk-type">{b.type}</div>
                             <div className="bk-title">{b.title}</div>
                             <div className="bk-detail">{b.details}</div>
+                            {(b.passenger||b.seat||b.cost||b.confirmation)&&(
+                              <div style={{display:"flex",gap:"0.6rem",flexWrap:"wrap",marginTop:"0.3rem"}}>
+                                {b.passenger&&<span style={{fontFamily:"var(--sans)",fontSize:"0.58rem",color:"var(--text2)",fontWeight:300}}>👤 {b.passenger}</span>}
+                                {b.seat&&<span style={{fontFamily:"var(--sans)",fontSize:"0.58rem",color:"var(--text2)",fontWeight:300}}>💺 {b.seat}</span>}
+                                {b.cost&&<span style={{fontFamily:"var(--sans)",fontSize:"0.58rem",color:"var(--amber)",fontWeight:400}}>{b.cost}</span>}
+                                {b.confirmation&&<span style={{fontFamily:"var(--sans)",fontSize:"0.58rem",color:"var(--gold)",letterSpacing:"0.06em",fontWeight:300}}>#{b.confirmation}</span>}
+                              </div>
+                            )}
                             {b.date&&<div className="bk-date">📅 {fmtDate(b.date)}</div>}
                           </div>
                           <button className="del-btn" onClick={()=>ut(t=>({...t,bookings:t.bookings.filter(x=>x.id!==b.id)}))}>✕</button>
@@ -1318,13 +1387,81 @@ export default function TSC(){
         )}
 
         {modals.booking&&(
-          <div className="overlay" onClick={e=>e.target===e.currentTarget&&cm("booking")}>
+          <div className="overlay" onClick={e=>e.target===e.currentTarget&&(cm("booking"),setTicketFile(null))}>
             <div className="modal">
-              <div className="mh"><div className="mh-title">Paste Confirmation</div><button className="mclose" onClick={()=>cm("booking")}>✕</button></div>
+              <div className="mh"><div className="mh-title">Add Booking</div><button className="mclose" onClick={()=>{cm("booking");setTicketFile(null)}}>✕</button></div>
               <div className="mc">
-                <div className="fg"><label className="fl">Confirmation Email / Booking Text</label><textarea className="fi fi-ta" style={{minHeight:"140px"}} placeholder="Paste your confirmation — Claude will auto-extract type, title, date, and details." value={bookingText} onChange={e=>setBookingText(e.target.value)}/></div>
+
+                {/* TICKET IMAGE DROP */}
+                {!ticketFile&&!isParsingTicket&&(
+                  <div className="ticket-drop-zone"
+                    onClick={()=>ticketDropRef.current?.click()}
+                    onDragOver={e=>{e.preventDefault();e.currentTarget.classList.add("dov")}}
+                    onDragLeave={e=>e.currentTarget.classList.remove("dov")}
+                    onDrop={e=>{e.preventDefault();e.currentTarget.classList.remove("dov");handleTicketFile(e.dataTransfer.files[0])}}>
+                    <div className="ticket-drop-icon">🎫</div>
+                    <div className="ticket-drop-text">Drop a ticket, screenshot, or PDF here<br/><span style={{opacity:0.6}}>Claude will extract passenger, flight, seat, cost & more</span></div>
+                    <input ref={ticketDropRef} type="file" accept="image/*,application/pdf" style={{display:"none"}} onChange={e=>handleTicketFile(e.target.files[0])}/>
+                  </div>
+                )}
+
+                {isParsingTicket&&(
+                  <div style={{padding:"1.5rem",textAlign:"center"}}>
+                    <div className="parsing" style={{justifyContent:"center",marginBottom:"0.4rem"}}><div className="pd"/><div className="pd"/><div className="pd"/></div>
+                    <div style={{fontFamily:"var(--sans)",fontSize:"0.58rem",color:"var(--text3)",letterSpacing:"0.1em"}}>Reading ticket...</div>
+                  </div>
+                )}
+
+                {/* PARSED RESULT */}
+                {ticketFile&&!isParsingTicket&&(()=>{
+                  const p=ticketFile.parsed;
+                  return(
+                    <div className="ticket-parsed">
+                      <div style={{fontFamily:"var(--sans)",fontSize:"0.5rem",letterSpacing:"0.2em",color:"var(--gold)",textTransform:"uppercase",marginBottom:"0.65rem",fontWeight:500}}>✦ Extracted from ticket</div>
+                      <div className="tp-row">
+                        {ticketFile.preview?<img src={ticketFile.preview} className="tp-preview" alt="ticket"/>:<div className="tp-preview-pdf">📄</div>}
+                        <div className="tp-fields">
+                          {p.title&&<div className="tp-field"><span className="tp-label">Route</span><span className="tp-val" style={{fontFamily:"var(--serif)",fontSize:"1rem",color:"var(--white)"}}>{p.title}</span></div>}
+                          {p.passenger&&<div className="tp-field"><span className="tp-label">Passenger</span><span className="tp-val">{p.passenger}</span></div>}
+                          {p.date&&<div className="tp-field"><span className="tp-label">Date</span><span className="tp-val">{fmtDate(p.date)}</span></div>}
+                        </div>
+                      </div>
+                      <div className="tp-grid">
+                        {p.flightNumber&&<div className="tp-field"><span className="tp-label">Flight / Train</span><span className="tp-val">{p.flightNumber}</span></div>}
+                        {p.seat&&<div className="tp-field"><span className="tp-label">Seat</span><span className="tp-val">{p.seat}</span></div>}
+                        {p.class&&<div className="tp-field"><span className="tp-label">Class</span><span className="tp-val">{p.class}</span></div>}
+                        {p.cost&&<div className="tp-field"><span className="tp-label">Cost</span><span className="tp-val" style={{color:"var(--amber)"}}>{p.cost}</span></div>}
+                        {p.departure&&<div className="tp-field"><span className="tp-label">Departs</span><span className="tp-val">{p.departure}</span></div>}
+                        {p.arrival&&<div className="tp-field"><span className="tp-label">Arrives</span><span className="tp-val">{p.arrival}</span></div>}
+                        {p.confirmation&&<div className="tp-field"><span className="tp-label">Ref</span><span className="tp-val" style={{color:"var(--gold)",letterSpacing:"0.06em"}}>{p.confirmation}</span></div>}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* DIVIDER */}
+                {!isParsingTicket&&(
+                  <div className="ticket-drop-or">or paste text</div>
+                )}
+
+                {/* TEXT PASTE */}
+                {!ticketFile&&!isParsingTicket&&(
+                  <div className="fg">
+                    <textarea className="fi fi-ta" style={{minHeight:"110px"}} placeholder="Paste confirmation email or booking text — Claude auto-extracts everything." value={bookingText} onChange={e=>setBookingText(e.target.value)}/>
+                  </div>
+                )}
+
                 {isParsing&&<div className="parsing"><div className="pd"/><div className="pd"/><div className="pd"/><span>Parsing...</span></div>}
-                <div className="fa"><button className="btn-s" onClick={()=>cm("booking")}>Cancel</button><button className="btn-p" disabled={!bookingText.trim()||isParsing} onClick={addBooking}>{isParsing?"Parsing...":"Add Booking"}</button></div>
+
+                <div className="fa">
+                  <button className="btn-s" onClick={()=>{cm("booking");setTicketFile(null);setBookingText("")}}>Cancel</button>
+                  {ticketFile&&!isParsingTicket&&(
+                    <button className="btn-p" onClick={saveTicketBooking}>Save Booking</button>
+                  )}
+                  {!ticketFile&&!isParsingTicket&&(
+                    <button className="btn-p" disabled={!bookingText.trim()||isParsing} onClick={addBooking}>{isParsing?"Parsing...":"Add Booking"}</button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
