@@ -94,7 +94,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 .tile-stat{display:flex;flex-direction:column;gap:0.15rem}
 .tile-stat-n{font-family:var(--serif);font-size:1.2rem;color:var(--text);font-weight:300}
 .tile-stat-l{font-family:var(--sans);font-size:0.48rem;color:var(--text3);letter-spacing:0.16em;text-transform:uppercase;font-weight:400}
-.status-tag{font-family:var(--sans);font-size:0.48rem;letter-spacing:0.16em;text-transform:uppercase;padding:0.18rem 0.45rem;font-weight:400}
+.status-tag{font-family:var(--sans);font-size:0.52rem;letter-spacing:0.1em;text-transform:capitalize;padding:0.18rem 0.45rem;font-weight:400}
 .st-upcoming{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(184,149,106,0.25)}
 .st-past{background:rgba(107,127,142,0.06);color:var(--text3);border:1px solid var(--border)}
 .st-planning{background:var(--sage-dim);color:var(--sage);border:1px solid rgba(90,143,117,0.25)}
@@ -116,7 +116,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 .bk-card:hover{background:var(--card2)}
 .bk-icon{font-size:1.2rem;min-width:22px;padding-top:0.12rem;opacity:0.8}
 .bk-body{flex:1;min-width:0}
-.bk-type{font-family:var(--sans);font-size:0.5rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:0.22rem;font-weight:400}
+.bk-type{font-family:var(--sans);font-size:0.52rem;letter-spacing:0.12em;color:var(--gold);text-transform:capitalize;margin-bottom:0.22rem;font-weight:400}
 .bk-title{font-family:var(--serif);font-size:1rem;color:var(--white);font-weight:400;margin-bottom:0.18rem}
 .bk-detail{font-family:var(--sans);font-size:0.68rem;color:var(--text2);line-height:1.7;font-weight:300;word-break:break-word}
 .bk-date{font-family:var(--sans);font-size:0.58rem;color:var(--gold);margin-top:0.25rem;letter-spacing:0.06em}
@@ -127,7 +127,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 .smart-panel{background:var(--card);border:1px solid var(--border);border-top:1px solid var(--gold);padding:1.25rem;margin-bottom:1.75rem}
 .smart-header{display:flex;align-items:center;gap:0.65rem;margin-bottom:1.1rem;flex-wrap:wrap}
 .smart-badge{font-family:var(--sans);font-size:0.5rem;letter-spacing:0.2em;background:var(--gold-dim);color:var(--gold);border:1px solid rgba(184,149,106,0.25);padding:0.16rem 0.5rem;font-weight:500}
-.smart-title{font-family:var(--sc);font-size:0.75rem;color:var(--white);letter-spacing:0.16em;font-weight:300}
+.smart-title{font-family:var(--sans);font-size:0.72rem;color:var(--white);letter-spacing:0.16em;font-weight:300;text-transform:uppercase}
 .smart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1px;background:var(--border)}
 .smart-card{background:var(--surface);padding:0.9rem 1rem}
 .sc-label{font-family:var(--sans);font-size:0.5rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:0.3rem;font-weight:400}
@@ -179,7 +179,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 /* ── DAY WALLET ── */
 .wallet-bar{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--amber);padding:0.9rem 1.1rem;margin-bottom:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background 0.2s;-webkit-tap-highlight-color:transparent}
 .wallet-bar:hover,.wallet-bar:active{background:var(--card)}
-.wallet-bar-title{font-family:var(--sc);font-size:0.75rem;letter-spacing:0.15em;color:var(--amber);font-weight:300}
+.wallet-bar-title{font-family:var(--sans);font-size:0.72rem;letter-spacing:0.15em;color:var(--amber);font-weight:400;text-transform:uppercase}
 .wallet-bar-sub{font-family:var(--sans);font-size:0.58rem;color:var(--text3);margin-top:0.18rem;font-weight:300}
 .wallet-panel{background:var(--surface);border:1px solid var(--border);border-top:none;padding:1.1rem;margin-top:-1.5rem;margin-bottom:1.5rem}
 .wallet-card{background:var(--card);border:1px solid var(--border);border-left:2px solid var(--amber);padding:0.8rem 0.9rem;margin-bottom:0.4rem;display:grid;grid-template-columns:auto 1fr;gap:0.65rem;align-items:start}
@@ -195,7 +195,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 .place-card{background:var(--card);padding:1rem 1.25rem;transition:background 0.2s}
 .place-card:hover{background:var(--card2)}
 .pc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.4rem}
-.pc-cat{font-family:var(--sans);font-size:0.5rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.22rem;font-weight:400}
+.pc-cat{font-family:var(--sans);font-size:0.52rem;letter-spacing:0.12em;text-transform:capitalize;color:var(--gold);margin-bottom:0.22rem;font-weight:400}
 .pc-name{font-family:var(--serif);font-size:1rem;color:var(--white);font-weight:400}
 .pc-note{font-size:0.73rem;color:var(--text2);font-style:italic;line-height:1.5;font-family:var(--serif);margin-top:0.3rem}
 .rating-bar{margin-top:0.65rem;display:flex;align-items:center;gap:0.55rem}
@@ -216,7 +216,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 .cat-row{display:flex;align-items:center;gap:0.55rem;padding:0.4rem 0;border-bottom:1px solid var(--border)}
 .cat-row:last-child{border-bottom:none}
 .cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.cat-name{font-family:var(--sans);font-size:0.68rem;color:var(--text);flex:1;font-weight:300}
+.cat-name{font-family:var(--sans);font-size:0.68rem;color:var(--text);flex:1;font-weight:300;text-transform:capitalize}
 .cat-bar-wrap{width:70px;height:2px;background:var(--border);overflow:hidden}
 .cat-bar-fill{height:100%;transition:width 0.4s}
 .cat-amt{font-family:var(--sans);font-size:0.68rem;color:var(--text2);min-width:44px;text-align:right;font-weight:400}
@@ -232,7 +232,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 .exp-row:hover{background:var(--card2)}
 .exp-row:last-child{border-bottom:none}
 .exp-name{font-family:var(--serif);font-size:0.9rem;color:var(--text);font-weight:400;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.exp-cat{font-family:var(--sans);font-size:0.56rem;color:var(--text2);font-weight:300}
+.exp-cat{font-family:var(--sans);font-size:0.56rem;color:var(--text2);font-weight:300;text-transform:capitalize}
 .exp-amt{font-family:var(--sans);font-size:0.78rem;color:var(--amber);font-weight:400}
 .exp-who{font-family:var(--sans);font-size:0.62rem;color:var(--text2);font-weight:300}
 .split-section{margin-top:1.75rem}
@@ -289,16 +289,30 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-weight:
 .section-label{font-family:var(--sans);font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3);margin-bottom:0.6rem;font-weight:400}
 
 /* ── MEMORIES ── */
-.photo-drop{border:1px solid var(--border);padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:1.1rem;-webkit-tap-highlight-color:transparent}
+.photo-drop{border:1px solid var(--border);padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:1.5rem;-webkit-tap-highlight-color:transparent}
 .photo-drop:hover,.photo-drop.dov,.photo-drop:active{border-color:rgba(184,149,106,0.4);background:var(--gold-glow)}
 .photo-drop-icon{font-size:1.6rem;opacity:0.18;margin-bottom:0.5rem}
 .photo-drop-text{font-family:var(--sans);font-size:0.6rem;color:var(--text3);letter-spacing:0.08em;font-weight:300;line-height:2}
-.photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:2px}
-.photo-cell{aspect-ratio:1;background:var(--card);overflow:hidden;position:relative}
-.photo-cell img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s}
-.photo-cell:hover img{transform:scale(1.05)}
-.photo-loc{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.75));padding:0.4rem 0.35rem 0.25rem;font-family:var(--sans);font-size:0.5rem;color:var(--text);opacity:0;transition:opacity 0.2s}
-.photo-cell:hover .photo-loc{opacity:1}
+/* polaroid collage */
+.collage{columns:2;column-gap:0.85rem;margin-bottom:1.5rem}
+@media(min-width:560px){.collage{columns:3}}
+@media(min-width:860px){.collage{columns:4}}
+.polaroid-wrap{break-inside:avoid;margin-bottom:0.85rem;display:inline-block;width:100%}
+.polaroid{background:#f8f4ee;padding:0.5rem 0.5rem 2.1rem;box-shadow:0 4px 18px rgba(0,0,0,0.5),0 1px 4px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.25s,box-shadow 0.25s;position:relative;-webkit-tap-highlight-color:transparent}
+.polaroid:hover{box-shadow:0 8px 32px rgba(0,0,0,0.65);z-index:2;transform:scale(1.03) rotate(0deg)!important}
+.polaroid img{display:block;width:100%;object-fit:cover;aspect-ratio:1}
+.polaroid-caption{font-family:'Cormorant Garamond',serif;font-size:0.75rem;color:#3a3028;text-align:center;margin-top:0.45rem;line-height:1.3;font-style:italic;font-weight:400;padding:0 0.15rem;min-height:1.1em;word-break:break-word}
+.polaroid-tag{position:absolute;bottom:0.35rem;right:0.4rem;background:rgba(11,18,32,0.75);backdrop-filter:blur(4px);border:1px solid rgba(184,149,106,0.35);color:var(--gold);font-family:var(--sans);font-size:0.44rem;letter-spacing:0.1em;padding:0.15rem 0.35rem;font-weight:400;max-width:calc(100% - 0.8rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.polaroid-del{position:absolute;top:0.35rem;right:0.35rem;background:rgba(11,18,32,0.7);border:none;color:rgba(255,255,255,0.4);font-size:0.65rem;cursor:pointer;width:20px;height:20px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent}
+.polaroid:hover .polaroid-del,.polaroid:active .polaroid-del{opacity:1}
+/* activity tag picker */
+.tag-picker{display:flex;flex-direction:column;gap:0.3rem;max-height:280px;overflow-y:auto}
+.tag-day-label{font-family:var(--sans);font-size:0.5rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);padding:0.5rem 0 0.2rem;font-weight:400}
+.tag-activity-btn{display:flex;align-items:center;gap:0.6rem;padding:0.65rem 0.85rem;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;text-align:left;width:100%;-webkit-tap-highlight-color:transparent}
+.tag-activity-btn:hover,.tag-activity-btn:active,.tag-activity-btn.sel{border-color:var(--gold);background:var(--gold-dim)}
+.tab-act-icon{font-size:0.9rem;flex-shrink:0}
+.tab-act-text{font-family:var(--serif);font-size:0.88rem;color:var(--text);flex:1;font-weight:400;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab-act-time{font-family:var(--sans);font-size:0.56rem;color:var(--text3);font-weight:300;flex-shrink:0}
 .notes-area{width:100%;min-height:200px;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--serif);font-size:0.9rem;line-height:1.85;padding:1.1rem;resize:vertical;outline:none;transition:border-color 0.2s;font-weight:300;font-style:italic;-webkit-appearance:none}
 .notes-area:focus{border-color:rgba(184,149,106,0.35)}
 .notes-area::placeholder{color:var(--text3)}
@@ -497,11 +511,23 @@ const DEMO={
 };
 
 /* ══════════════════════════════════════════════════════════════════════ */
+/* ── LOCALSTORAGE HELPERS ── */
+function loadTrips(){
+  try{
+    const saved=localStorage.getItem("tsc-trips");
+    if(saved){const parsed=JSON.parse(saved);if(Array.isArray(parsed)&&parsed.length>0)return parsed;}
+  }catch{}
+  return [DEMO];
+}
+function saveTrips(trips){
+  try{localStorage.setItem("tsc-trips",JSON.stringify(trips));}catch{}
+}
+
 export default function TSC(){
   const [page,setPage]=useState("dashboard");
   const [activeTripId,setActiveTripId]=useState(null);
   const [mainTab,setMainTab]=useState("bookings");
-  const [trips,setTrips]=useState([DEMO]);
+  const [trips,setTrips]=useState(loadTrips);
   const [sidebarOpen,setSidebarOpen]=useState(true);
   const [modals,setModals]=useState({});
   const [bookingText,setBookingText]=useState("");
@@ -522,9 +548,13 @@ export default function TSC(){
   const [newTraveler,setNewTraveler]=useState("");
   const [receipt,setReceipt]=useState(null);
   const [receiptLoading,setReceiptLoading]=useState(false);
+  const [tagModal,setTagModal]=useState(null); // {photoId}
   const photoRef=useRef();
   const receiptRef=useRef();
   const ticketImgRefs=useRef({});
+
+  // Auto-save trips to localStorage on every change
+  useEffect(()=>{saveTrips(trips);},[trips]);
 
   const trip=trips.find(t=>t.id===activeTripId);
   const openTrip=(id)=>{setActiveTripId(id);setPage("trip");setMainTab("bookings");setSidebarOpen(true)};
@@ -685,7 +715,7 @@ export default function TSC(){
 
   function handlePhotos(e){
     const files=Array.from(e.dataTransfer?.files||e.target?.files||[]).filter(f=>f.type.startsWith("image/"));
-    files.forEach(f=>{const r=new FileReader();r.onload=ev=>ut(t=>({...t,photos:[...t.photos,{id:uid(),src:ev.target.result,name:f.name,location:"GPS: Locating..."}]}));r.readAsDataURL(f)});
+    files.forEach(f=>{const r=new FileReader();r.onload=ev=>ut(t=>({...t,photos:[...t.photos,{id:uid(),src:ev.target.result,name:f.name,caption:f.name.replace(/\.[^.]+$/,"").replace(/[-_]/g," "),activityId:null}]}));r.readAsDataURL(f)});
   }
 
   const {total,budget:budgetAmt,remaining,pct,byCategory}=trip?calcBudget():{total:0,budget:0,remaining:0,pct:0,byCategory:{}};
@@ -762,7 +792,7 @@ export default function TSC(){
                 <div className="dash-eyebrow">Your personal travel intelligence</div>
                 <div className="dash-title">Plan. Explore.<br/><em>Remember.</em></div>
                 <div className="dash-rule"/>
-                <div className="dash-sub">Bookings · Itineraries · Budget<br/>Splits · Memories · Travel Intel</div>
+                <div className="dash-sub">Bookings · Itineraries · Budget<br/>Memories · Travel Intel</div>
               </div>
               <div className="stats-grid">
                 <div className="stat-box"><div className="stat-n">{trips.length}</div><div className="stat-l">Trips</div></div>
@@ -1066,26 +1096,105 @@ export default function TSC(){
               })()}
 
               {/* MEMORIES */}
-              {mainTab==="memories"&&(
+              {mainTab==="memories"&&(()=>{
+                // stable per-photo rotation: seed from photo id
+                function photoRot(id){const n=id.split("").reduce((a,c)=>a+c.charCodeAt(0),0);const r=(n%11)-5;return r===0?1.2:r;}
+                // all activities flat list for tagging
+                const allActivities=(trip.itinerary||[]).flatMap(d=>d.items.map(i=>({...i,dayIndex:d.dayIndex})));
+                const taggedPhoto=tagModal?trip.photos.find(p=>p.id===tagModal):null;
+                return(
                 <div className="tab-pad">
-                  <div className="memories-layout" style={{display:"grid",gridTemplateColumns:"1fr",gap:"1.5rem"}}>
-                    <div>
-                      <div className="sh"><div className="sh-title">Photos</div><div className="sh-line"/></div>
-                      <div className="photo-drop" onClick={()=>photoRef.current?.click()} onDragOver={e=>{e.preventDefault();e.currentTarget.classList.add("dov")}} onDragLeave={e=>e.currentTarget.classList.remove("dov")} onDrop={e=>{e.preventDefault();e.currentTarget.classList.remove("dov");handlePhotos(e)}}>
-                        <div className="photo-drop-icon">📷</div>
-                        <div className="photo-drop-text">Tap to upload photos<br/><span style={{opacity:0.5,fontSize:"0.56rem"}}>GPS metadata auto-links to trip</span></div>
-                        <input ref={photoRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={handlePhotos}/>
-                      </div>
-                      {trip.photos.length>0?(<div className="photos-grid">{trip.photos.map(ph=><div key={ph.id} className="photo-cell"><img src={ph.src} alt={ph.name}/><div className="photo-loc">📍 {ph.location}</div></div>)}</div>):<div className="empty"><div className="empty-icon">🏙️</div><div className="empty-text">No photos yet.</div></div>}
-                    </div>
-                    <div>
-                      <div className="sh"><div className="sh-title">Notes</div></div>
-                      <textarea className="notes-area" placeholder="Trip notes, reflections, things to remember..." value={trip.notes||""} onChange={e=>ut(t=>({...t,notes:e.target.value}))}/>
-                      <div style={{fontFamily:"var(--sans)",fontSize:"0.52rem",color:"var(--text3)",marginTop:"0.35rem",letterSpacing:"0.14em",textTransform:"uppercase"}}>Auto-saved</div>
-                    </div>
+                  <div className="sh"><div className="sh-title">Memories</div><div className="sh-line"/></div>
+                  <div className="photo-drop" onClick={()=>photoRef.current?.click()} onDragOver={e=>{e.preventDefault();e.currentTarget.classList.add("dov")}} onDragLeave={e=>e.currentTarget.classList.remove("dov")} onDrop={e=>{e.preventDefault();e.currentTarget.classList.remove("dov");handlePhotos(e)}}>
+                    <div className="photo-drop-icon">📷</div>
+                    <div className="photo-drop-text">Tap to add photos<br/><span style={{opacity:0.5,fontSize:"0.56rem"}}>They'll appear as polaroids below</span></div>
+                    <input ref={photoRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={handlePhotos}/>
                   </div>
+
+                  {trip.photos.length===0?(
+                    <div className="empty"><div className="empty-icon">🏙️</div><div className="empty-text">No photos yet.</div></div>
+                  ):(
+                    <div className="collage">
+                      {trip.photos.map(ph=>{
+                        const rot=photoRot(ph.id);
+                        const taggedActivity=ph.activityId?allActivities.find(a=>a.id===ph.activityId):null;
+                        return(
+                          <div key={ph.id} className="polaroid-wrap">
+                            <div className="polaroid" style={{transform:`rotate(${rot}deg)`}}>
+                              <img src={ph.src} alt={ph.caption||ph.name}/>
+                              <div className="polaroid-caption">{ph.caption||ph.name||""}</div>
+                              {taggedActivity&&(
+                                <div className="polaroid-tag">{taggedActivity.icon} {taggedActivity.text}</div>
+                              )}
+                              <button className="polaroid-del" title="Remove" onClick={e=>{e.stopPropagation();ut(t=>({...t,photos:t.photos.filter(x=>x.id!==ph.id)}))}}>✕</button>
+                              <div style={{position:"absolute",bottom:"0.35rem",left:"0.4rem"}}>
+                                <button onClick={e=>{e.stopPropagation();setTagModal(ph.id)}} style={{background:"rgba(11,18,32,0.7)",border:"1px solid rgba(184,149,106,0.3)",color:"var(--gold)",fontFamily:"var(--sans)",fontSize:"0.44rem",letterSpacing:"0.08em",padding:"0.15rem 0.35rem",cursor:"pointer",WebkitTapHighlightColor:"transparent"}}>
+                                  {taggedActivity?"✎ Tag":"＋ Tag"}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <div className="sh" style={{marginTop:"0.5rem"}}><div className="sh-title">Notes</div></div>
+                  <textarea className="notes-area" placeholder="Trip notes, reflections, things to remember..." value={trip.notes||""} onChange={e=>ut(t=>({...t,notes:e.target.value}))}/>
+                  <div style={{fontFamily:"var(--sans)",fontSize:"0.52rem",color:"var(--text3)",marginTop:"0.35rem",letterSpacing:"0.14em",textTransform:"uppercase"}}>Auto-saved</div>
+
+                  {/* TAG MODAL */}
+                  {tagModal&&taggedPhoto&&(
+                    <div className="overlay" onClick={()=>setTagModal(null)}>
+                      <div className="modal" onClick={e=>e.stopPropagation()}>
+                        <div className="mh">
+                          <div className="mh-title">Tag Activity</div>
+                          <button className="mclose" onClick={()=>setTagModal(null)}>✕</button>
+                        </div>
+                        <div className="mc">
+                          <div style={{display:"flex",gap:"0.75rem",marginBottom:"1.1rem",alignItems:"flex-start"}}>
+                            <img src={taggedPhoto.src} alt="" style={{width:"72px",height:"72px",objectFit:"cover",flexShrink:0,border:"1px solid var(--border)"}}/>
+                            <div>
+                              <div style={{fontFamily:"var(--sans)",fontSize:"0.52rem",letterSpacing:"0.16em",color:"var(--text3)",textTransform:"uppercase",marginBottom:"0.3rem"}}>Photo</div>
+                              <div style={{fontFamily:"var(--serif)",fontSize:"0.88rem",color:"var(--text)",fontStyle:"italic"}}>{taggedPhoto.caption||taggedPhoto.name}</div>
+                            </div>
+                          </div>
+                          <div style={{fontFamily:"var(--sans)",fontSize:"0.52rem",letterSpacing:"0.16em",color:"var(--text3)",textTransform:"uppercase",marginBottom:"0.5rem"}}>Tag to activity</div>
+                          {allActivities.length===0?(
+                            <div className="empty"><div className="empty-text">No activities in itinerary yet.</div></div>
+                          ):(
+                            <div className="tag-picker">
+                              {(()=>{
+                                const byDay={};
+                                allActivities.forEach(a=>{if(!byDay[a.dayIndex])byDay[a.dayIndex]=[];byDay[a.dayIndex].push(a)});
+                                return Object.entries(byDay).map(([di,acts])=>(
+                                  <div key={di}>
+                                    <div className="tag-day-label">{dayLabels[Number(di)]||`Day ${Number(di)+1}`}</div>
+                                    {acts.map(a=>(
+                                      <button key={a.id} className={`tag-activity-btn${taggedPhoto.activityId===a.id?" sel":""}`}
+                                        onClick={()=>{ut(t=>({...t,photos:t.photos.map(p=>p.id===tagModal?{...p,activityId:p.activityId===a.id?null:a.id}:p)}));setTagModal(null)}}>
+                                        <span className="tab-act-icon">{a.icon}</span>
+                                        <span className="tab-act-text">{a.text}</span>
+                                        <span className="tab-act-time">{a.time}</span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                ));
+                              })()}
+                            </div>
+                          )}
+                          {taggedPhoto.activityId&&(
+                            <button className="btn-s" style={{width:"100%",marginTop:"0.85rem"}} onClick={()=>{ut(t=>({...t,photos:t.photos.map(p=>p.id===tagModal?{...p,activityId:null}:p)}));setTagModal(null)}}>
+                              Remove Tag
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+                );
+              })()}
 
               {/* TRAVEL INTEL */}
               {mainTab==="intel"&&(()=>{
@@ -1341,4 +1450,3 @@ export default function TSC(){
     </>
   );
 }
-
