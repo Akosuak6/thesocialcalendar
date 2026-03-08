@@ -466,41 +466,43 @@ function getDays(s,e){if(!s||!e)return 0;return Math.max(1,Math.ceil((new Date(e
 function getTripDays(sd,n){const days=[];const b=new Date(sd+"T12:00:00");for(let i=0;i<n;i++){const d=new Date(b);d.setDate(d.getDate()+i);days.push(d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}))}return days}
 function tripStatus(s,e){if(!s)return"planning";const now=new Date();now.setHours(0,0,0,0);const sd=new Date(s+"T00:00:00"),ed=e?new Date(e+"T00:00:00"):sd;if(sd>now)return"upcoming";if(ed<now)return"past";return"upcoming"}
 
-/* ── AI ── */
-const AI=async(prompt,maxTokens=1400)=>{
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTokens,messages:[{role:"user",content:prompt}]})});
+/* ── AI (proxied through /api/claude) ── */
+const AI=async(body)=>{
+  const r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error(`API error ${r.status}`);
   const d=await r.json();
   const raw=d.content?.map(b=>b.text||"").join("")||"{}";
   return JSON.parse(raw.replace(/```json|```/g,"").trim());
 };
 
 async function aiParseBooking(text){
-  return AI(`Parse this travel confirmation. Return ONLY valid JSON with no extra text:\n{"type":"flight|hotel|airbnb|train|car|other","title":"short title","details":"one line summary","date":"YYYY-MM-DD","destination":"city"}\nText:"""${text}"""`);
+  return AI({model:"claude-sonnet-4-20250514",max_tokens:600,messages:[{role:"user",content:`Parse this travel confirmation. Return ONLY valid JSON with no extra text:\n{"type":"flight|hotel|airbnb|train|car|other","title":"short title","details":"one line summary","date":"YYYY-MM-DD","destination":"city"}\nText:"""${text}"""`}]});
 }
 async function aiParseTicketImage(base64,mediaType){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mediaType,data:base64}},{type:"text",text:`Extract all travel ticket information from this image or document. Return ONLY valid JSON:\n{"type":"flight|train|hotel|other","title":"route or property name e.g. JFK → CDG or Hotel du Marais","passenger":"full name if visible","date":"YYYY-MM-DD","flightNumber":"e.g. AF007 or train number","departure":"city or station + time e.g. New York JFK 22:30","arrival":"city or station + time e.g. Paris CDG 11:45","seat":"seat or carriage number","class":"e.g. Economy, Business, First","cost":"numeric amount with currency symbol if visible","confirmation":"booking ref or confirmation code","details":"one-line summary of all key info","destination":"destination city"}`}]}]})});
+  const r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mediaType,data:base64}},{type:"text",text:`Extract all travel ticket information from this image or document. Return ONLY valid JSON:\n{"type":"flight|train|hotel|other","title":"route or property name e.g. JFK → CDG or Hotel du Marais","passenger":"full name if visible","date":"YYYY-MM-DD","flightNumber":"e.g. AF007 or train number","departure":"city or station + time e.g. New York JFK 22:30","arrival":"city or station + time e.g. Paris CDG 11:45","seat":"seat or carriage number","class":"e.g. Economy, Business, First","cost":"numeric amount with currency symbol if visible","confirmation":"booking ref or confirmation code","details":"one-line summary of all key info","destination":"destination city"}`}]}]})});
+  if(!r.ok)throw new Error(`API error ${r.status}`);
   const d=await r.json();
   return JSON.parse(d.content?.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim()||"{}");
 }
 async function aiSuggestActivities(dest,items,dayLabel){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:`You are a travel expert. For ${dest}, suggest 4 geo-optimized activities for ${dayLabel}. Already planned: ${items.map(i=>i.text).join(", ")||"nothing yet"}. Return ONLY a valid JSON array, no other text:\n[{"text":"activity name and short tip","time":"HH:MM","icon":"single emoji","transport":"emoji + mode","cost":25,"reason":"one sentence why"}]`}]})});
+  const r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:`You are a travel expert. For ${dest}, suggest 4 geo-optimized activities for ${dayLabel}. Already planned: ${items.map(i=>i.text).join(", ")||"nothing yet"}. Return ONLY a valid JSON array, no other text:\n[{"text":"activity name and short tip","time":"HH:MM","icon":"single emoji","transport":"emoji + mode","cost":25,"reason":"one sentence why"}]`}]})});
+  if(!r.ok)throw new Error(`API error ${r.status}`);
   const d=await r.json();
   const raw=d.content?.map(b=>b.text||"").join("")||"[]";
-  const cleaned=raw.replace(/```json|```/g,"").trim();
-  const parsed=JSON.parse(cleaned);
+  const parsed=JSON.parse(raw.replace(/```json|```/g,"").trim());
   return Array.isArray(parsed)?parsed:(parsed.activities||parsed.suggestions||[]);
 }
 async function aiParseReceipt(base64){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:base64}},{type:"text",text:"Parse this receipt. Return ONLY JSON:\n{\"items\":[{\"name\":\"item\",\"amount\":0}],\"subtotal\":0,\"tax\":0,\"tip\":0,\"total\":0}"}]}]})});
+  const r=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:base64}},{type:"text",text:"Parse this receipt. Return ONLY JSON:\n{\"items\":[{\"name\":\"item\",\"amount\":0}],\"subtotal\":0,\"tax\":0,\"tip\":0,\"total\":0}"}]}]})});
+  if(!r.ok)throw new Error(`API error ${r.status}`);
   const d=await r.json();
   return JSON.parse(d.content?.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim()||"{}");
 }
 async function aiTripPlanning(dest,country){
-  return AI(`Smart trip planning insights for ${dest}, ${country}. Return ONLY JSON:\n{"bestMonths":[{"month":"Jan","score":8,"reason":"why","avgFlight":450}],"events":[{"name":"event","dates":"when","description":"brief"}],"savings":[{"tip":"saving tip","estimatedSaving":"$X-$Y","category":"transport|food|activity"}],"priceCalendar":"2-3 sentence summary"}`,1500);
+  return AI({model:"claude-sonnet-4-20250514",max_tokens:1500,messages:[{role:"user",content:`Smart trip planning insights for ${dest}, ${country}. Return ONLY JSON:\n{"bestMonths":[{"month":"Jan","score":8,"reason":"why","avgFlight":450}],"events":[{"name":"event","dates":"when","description":"brief"}],"savings":[{"tip":"saving tip","estimatedSaving":"$X-$Y","category":"transport|food|activity"}],"priceCalendar":"2-3 sentence summary"}`}]});
 }
 async function aiTravelIntel(dest,country,startDate){
-  return AI(`Comprehensive travel advisor for ${dest}, ${country}. Travel dates around ${startDate||"upcoming months"}. Return ONLY valid JSON:
-{"visa":{"requirement":"visa-free|e-visa|on-arrival|required","cost":"$X or free","processingTime":"X days","validity":"X days","applicationUrl":"official URL","timeline":"step by step timeline","notes":"key requirements","documents":["passport","return ticket","hotel booking"]},"currency":{"code":"EUR","name":"Euro","symbol":"€","usdRate":"1 USD = X.XX EUR","tips":["tip1","tip2"],"cashVsCard":"note"},"weather":{"overview":"brief","forecast":[{"label":"Early trip","icon":"☀️","tempHigh":"22°C","tempLow":"14°C","desc":"Sunny"}],"packingTips":["tip1"]},"transit":{"overview":"2-3 sentences","modes":[{"name":"Metro","grade":"A","cost":"€1.73","tip":"insider tip","icon":"🚇"}],"apps":["app1"],"airportTransfer":"how to get to city"},"culture":{"dos":["do1"],"donts":["dont1"],"customs":"2-3 sentences","tipping":"tipping culture","language":"key notes"},"emergency":{"police":"17","ambulance":"15","embassy":"US Embassy number","hospitalNote":"healthcare note"}}`,3000);
+  return AI({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:`Comprehensive travel advisor for ${dest}, ${country}. Travel dates around ${startDate||"upcoming months"}. Return ONLY valid JSON:\n{"visa":{"requirement":"visa-free|e-visa|on-arrival|required","cost":"$X or free","processingTime":"X days","validity":"X days","applicationUrl":"official URL","timeline":"step by step timeline","notes":"key requirements","documents":["passport","return ticket","hotel booking"]},"currency":{"code":"EUR","name":"Euro","symbol":"€","usdRate":"1 USD = X.XX EUR","tips":["tip1","tip2"],"cashVsCard":"note"},"weather":{"overview":"brief","forecast":[{"label":"Early trip","icon":"☀️","tempHigh":"22°C","tempLow":"14°C","desc":"Sunny"}],"packingTips":["tip1"]},"transit":{"overview":"2-3 sentences","modes":[{"name":"Metro","grade":"A","cost":"€1.73","tip":"insider tip","icon":"🚇"}],"apps":["app1"],"airportTransfer":"how to get to city"},"culture":{"dos":["do1"],"donts":["dont1"],"customs":"2-3 sentences","tipping":"tipping culture","language":"key notes"},"emergency":{"police":"17","ambulance":"15","embassy":"US Embassy number","hospitalNote":"healthcare note"}}`}]});
 }
 
 /* ── DEMO DATA ── */
@@ -566,6 +568,7 @@ export default function TSC(){
   const [newPlace,setNewPlace]=useState({name:"",category:"restaurant",note:"",rating:80});
   const [newExpense,setNewExpense]=useState({name:"",amount:"",category:"food",paidBy:"",splitWith:[],splitType:"equal",customSplits:{}});
   const [newAgenda,setNewAgenda]=useState({time:"09:00",text:"",icon:"📍",transport:"🚶 Walk",cost:"",dayIndex:0});
+  const [editAgenda,setEditAgenda]=useState(null); // {item, dayIndex}
   const [expandedTickets,setExpandedTickets]=useState({});
   const [walletOpen,setWalletOpen]=useState({});
   const [suggestions,setSuggestions]=useState([]);
@@ -653,7 +656,12 @@ export default function TSC(){
     setNewAgenda({time:"09:00",text:"",icon:"📍",transport:"🚶 Walk",cost:"",dayIndex:0});cm("agenda");
   }
 
-  function updateItemTicket(di,itemId,field,val){
+  function saveEditAgenda(){
+    if(!editAgenda||!editAgenda.item.text)return;
+    const{item,dayIndex}=editAgenda;
+    ut(t=>({...t,itinerary:t.itinerary.map(d=>d.dayIndex!==dayIndex?d:{...d,items:d.items.map(i=>i.id!==item.id?i:{...i,...item,cost:Number(item.cost)||0})})}));
+    setEditAgenda(null);
+  }
     ut(t=>({...t,itinerary:t.itinerary.map(d=>d.dayIndex!==di?d:{...d,items:d.items.map(i=>i.id!==itemId?i:{...i,[field]:val})})}));
   }
   function addTicketImg(di,itemId,src){
@@ -1051,6 +1059,7 @@ export default function TSC(){
                                     <span className="ai-text">{item.text}</span>
                                     {item.transport&&<span className="ai-transport">{item.transport}</span>}
                                     {item.cost>0&&<span className="ai-cost">${item.cost}</span>}
+                                    <button className="ticket-toggle" style={{borderColor:"var(--border)",color:"var(--text3)"}} onClick={()=>setEditAgenda({item:{...item},dayIndex:di})} title="Edit">✎</button>
                                     <button className={`ticket-toggle${hasTicket?" has-ticket":""}`} onClick={()=>setExpandedTickets(et=>({...et,[item.id]:!et[item.id]}))}>
                                       {hasTicket?"🎫":"+ Ticket"}
                                     </button>
@@ -1578,6 +1587,34 @@ export default function TSC(){
                     <div className="fa"><button className="btn-s" onClick={()=>setReceipt(null)}>← Re-upload</button><button className="btn-p" onClick={saveReceiptAsSplit}>Save Split</button></div>
                   </>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT AGENDA MODAL */}
+        {editAgenda&&(
+          <div className="overlay" onClick={e=>e.target===e.currentTarget&&setEditAgenda(null)}>
+            <div className="modal">
+              <div className="mh"><div className="mh-title">Edit Activity</div><button className="mclose" onClick={()=>setEditAgenda(null)}>✕</button></div>
+              <div className="mc">
+                <div className="frow">
+                  <div className="fg"><label className="fl">Time</label><input type="time" className="fi" value={editAgenda.item.time||""} onChange={e=>setEditAgenda(ea=>({...ea,item:{...ea.item,time:e.target.value}}))}/></div>
+                  <div className="fg"><label className="fl">Icon</label><input className="fi" placeholder="📍" value={editAgenda.item.icon||""} onChange={e=>setEditAgenda(ea=>({...ea,item:{...ea.item,icon:e.target.value}}))}/></div>
+                </div>
+                <div className="fg"><label className="fl">Activity *</label><input className="fi" placeholder="Visit the Eiffel Tower" value={editAgenda.item.text||""} onChange={e=>setEditAgenda(ea=>({...ea,item:{...ea.item,text:e.target.value}}))}/></div>
+                <div className="frow">
+                  <div className="fg"><label className="fl">Transport</label>
+                    <select className="fi" value={editAgenda.item.transport||""} onChange={e=>setEditAgenda(ea=>({...ea,item:{...ea.item,transport:e.target.value}}))}>
+                      {["🚶 Walk","🚇 Metro","🚕 Taxi","🚲 Bike","🚌 Bus","🚗 Car","🚤 Boat","✈️ Flight"].map(t=><option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div className="fg"><label className="fl">Cost ($)</label><input type="number" className="fi" placeholder="0" value={editAgenda.item.cost||""} onChange={e=>setEditAgenda(ea=>({...ea,item:{...ea.item,cost:e.target.value}}))}/></div>
+                </div>
+                <div className="fa">
+                  <button className="btn-s" onClick={()=>setEditAgenda(null)}>Cancel</button>
+                  <button className="btn-p" disabled={!editAgenda.item.text} onClick={saveEditAgenda}>Save Changes</button>
+                </div>
               </div>
             </div>
           </div>
